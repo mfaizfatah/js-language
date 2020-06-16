@@ -12,7 +12,7 @@ mongoose.connect("mongodb+srv://node-shop:" + process.env.MONGO_ATLAS_PW + "@clu
 {
     useNewUrlParser: true,
     useUnifiedTopology: true,
-    useFindAndModify: false
+    useCreateIndex: true
 });
 mongoose.Promise = global.Promise;
 
