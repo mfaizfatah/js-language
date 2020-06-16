@@ -2,7 +2,7 @@
     "name": "appShop",
     "script": "./server.js",
     "watch": true,
-    "cwd": "/var/www/app/node-restapi-shop",
+    "cwd": "/node-restapi-shop",
     "env": {
       "NODE_ENV": "development"
     },
