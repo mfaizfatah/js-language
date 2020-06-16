@@ -11,7 +11,8 @@ const userRoutes = require('./api/routes/user');
 mongoose.connect("mongodb+srv://node-shop:" + process.env.MONGO_ATLAS_PW + "@cluster0-tpw59.gcp.mongodb.net/"+ process.env.MONGO_ATLAS_DB +"?retryWrites=true&w=majority", 
 {
     useNewUrlParser: true,
-    useUnifiedTopology: true
+    useUnifiedTopology: true,
+    useFindAndModify: false
 });
 mongoose.Promise = global.Promise;
 
