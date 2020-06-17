@@ -21,7 +21,7 @@ const fileFilter = (req, file, cb) => {
     }    
 };
 
-const upload = multer({
+exports.upload = multer({
     storage: storage, 
     limits: {
         fileSize: 1024 * 1024 * 5
@@ -66,7 +66,7 @@ exports.products_get_all = (req,res,next) => {
     });
 }
 
-exports.product_create_product = upload.single('productImage'), (req,res,next) => {
+exports.product_create_product = (req,res,next) => {
     // console.log(req.file);
     const product = new Product({
         _id: new mongoose.Types.ObjectId(),

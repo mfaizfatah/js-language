@@ -32,9 +32,9 @@ app.use((req, res, next) => {
 });
 
 // Routes which should handle requests
-app.use('/products', productRoutes);
-app.use('/orders', orderRoutes);
-app.use('/user', userRoutes);
+app.use('/shop/products', productRoutes);
+app.use('/shop/orders', orderRoutes);
+app.use('/shop/user', userRoutes);
 
 app.use((req, res, next) => {
     const error = new Error('Not found');
