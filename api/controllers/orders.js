@@ -47,7 +47,7 @@ exports.order_create_order = (req, res, next) => {
         return order.save();
         })
         .then(result => {
-            console.log(result);
+            // console.log(result);
             res.status(201).json({
                 message: 'Order stored',
                 createdOrder: {
@@ -62,7 +62,7 @@ exports.order_create_order = (req, res, next) => {
             });
         })
         .catch(err => {
-            console.log(err);
+            // console.log(err);
             res.status(500).json({
                 error: err
         });

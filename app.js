@@ -1,14 +1,15 @@
 const express = require('express');
 const app = express();
-const morgan = require('morgan');
+// const morgan = require('morgan');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 
 const productRoutes = require('./api/routes/products');
 const orderRoutes = require('./api/routes/orders');
 const userRoutes = require('./api/routes/user');
+const logger = require('./api/utils/logger');
 
-mongoose.connect("mongodb+srv://node-shop:" + process.env.MONGO_ATLAS_PW + "@cluster0-tpw59.gcp.mongodb.net/"+ process.env.MONGO_ATLAS_DB +"?retryWrites=true&w=majority", 
+mongoose.connect(process.env.MONGO_ATLAS_URL, 
 {
     useNewUrlParser: true,
     useUnifiedTopology: true,
@@ -16,7 +17,7 @@ mongoose.connect("mongodb+srv://node-shop:" + process.env.MONGO_ATLAS_PW + "@clu
 });
 mongoose.Promise = global.Promise;
 
-app.use(morgan('dev'));
+app.use(logger.requestLog);
 app.use('/uploads', express.static('uploads'));
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
@@ -35,6 +36,8 @@ app.use((req, res, next) => {
 app.use('/shop/products', productRoutes);
 app.use('/shop/orders', orderRoutes);
 app.use('/shop/user', userRoutes);
+
+app.use(logger.errorLog);
 
 app.use((req, res, next) => {
     const error = new Error('Not found');
