@@ -56,13 +56,16 @@ const requestLog = expressWinston.logger({
 });
 
 const errorLog = expressWinston.errorLogger({
-    transports: [
-        new winston.transports.Console()
-    ],
-    format: winston.format.combine(
-        winston.format.colorize(),
-        winston.format.json()
-    )
+  transports: [
+    new transports.MongoDB({
+        db: process.env.MONGO_ATLAS_URL,
+        collection: "log-"+stringDate,
+        options:{useUnifiedTopology: true},
+        format: format.combine(format.timestamp(), format.json()),
+        expireAfterSeconds:86400,
+        metaKey: 'meta'
+    }),
+]
 });
 
 exports.logger = logger;
