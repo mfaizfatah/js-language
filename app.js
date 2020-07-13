@@ -17,7 +17,7 @@ mongoose.connect(process.env.MONGO_ATLAS_URL,
 });
 mongoose.Promise = global.Promise;
 
-app.use(logger.requestLog);
+// app.use(logger.requestLog);
 app.use('/uploads', express.static('uploads'));
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());

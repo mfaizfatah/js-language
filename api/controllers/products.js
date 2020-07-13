@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const multer = require('multer');
 const fs = require('fs');
 const logger = require('../utils/logger');
+const response = require('../utils/response');
 
 const Product = require('../models/product');
 
@@ -23,6 +24,8 @@ const fileFilter = (req, file, cb) => {
     }    
 };
 
+const error_msg = "Something went wrong. Please try again later. Thank You!"
+
 exports.upload = multer({
     storage: storage, 
     limits: {
@@ -32,11 +35,19 @@ exports.upload = multer({
 });
 
 exports.products_get_all = (req,res,next) => {
-    Product.find()
-    .select('name price _id productImage')
-    .exec()
-    .then(docs => {
-        const response = {
+    const { pages, size } = req.query
+    var where = {}
+    let limit, offset = 0
+    limit   = parseInt(size)
+    offset  = parseInt((pages - 1) * limit)
+
+    Product.find(where, (err, docs) => {
+        if (err) {
+            response.error(res, 500, err, error_msg)
+            return
+        }
+
+        const outRs = {
             count:docs.length,
             products: docs.map(doc => {
                 return {
@@ -51,21 +62,8 @@ exports.products_get_all = (req,res,next) => {
                 }
             })
         }
-        // console.log(response);
-        if (docs.length >= 0){
-            res.status(200).json(response);
-        } else {
-            res.status(404).json({
-                message: 'No entries found'
-            });
-        }
+        response.success(res, 200, outRs)
     })
-    .catch(err => {
-        logger.logger.error(err);
-        res.status(500).json({
-            error: err
-        });
-    });
 }
 
 exports.product_create_product = (req,res,next) => {
@@ -74,13 +72,17 @@ exports.product_create_product = (req,res,next) => {
         _id: new mongoose.Types.ObjectId(),
         name: req.body.name,
         price: req.body.price,
-        productImage: req.file.path
+        productImage: req.file.path,
+        created_at: new Date(),
+        update_at: new Date()
     });
-    product
-        .save()
-        .then(result => {
-        logger.logger.info(result);
-        res.status(201).json({
+
+    product.save((err, data) => {
+        if (err) {
+            response.error(res, 500, err, error_msg)
+        }
+
+        const outRs = {
             message: 'Created product successfully',
             createdProduct: {
                 name: result.name,
@@ -91,41 +93,30 @@ exports.product_create_product = (req,res,next) => {
                     url: 'http://localhost:3000/products/'+ result._id
                 }
             }
-        });
+        }
+        response.success(res, 201, outRs)
     })
-    .catch(err => {
-        logger.logger.error(err);
-        res.status(500).json({
-            error: err
-        })
-    });
 }
 
 exports.product_get_one = (req,res,next) => {
     const id = req.params.productId;
-    Product.findById(id)
-    .select('name price _id productImage')
-    .exec()
-    .then(doc => {
-        // console.log("From database", doc);
-        if (doc) {
-            res.status(200).json({
-                product: doc,
+
+    Product.findById(id, (err, data) => {
+        if (err) {
+            response.error(res, 500, err, error_msg)
+        }
+
+        const outRs = {
+            product: data,
                 request: {
                     type: 'GET',
                     description: 'GET_ALL_PRODUCT',
                     url: "http://localhost:3000/products"
                 }
-            });
-        } else {
-            res.status(404).json({message: "No valid entry found for provided ID"});
         }
-        
-    })
-    .catch(err => {
-        logger.logger.error(err);
-        res.status(500).json({error: err});
-    });    
+
+        response.success(res,200,outRs)
+    })   
 }
 
 exports.product_update_product = (req,res,next) => {
@@ -134,68 +125,57 @@ exports.product_update_product = (req,res,next) => {
     for (const ops of req.body){
         updateOps[ops.propName] = ops.value;
     }
-    Product.update({_id: id}, { $set: updateOps })
-    .exec()
-    .then(result => {
-        // console.log(result);
-        res.status(200).json({
-            message: 'Product Updated',
+    updateOps[update_at] = new Date()
+
+    Product.update(id, {$set: updateOps}, (err, data) => {
+        if (err) {
+            response.error(res, 500, err, error_msg)
+            return
+        }
+
+        const outRs = {
             request: {
                 type: 'GET',
                 url: 'http://localhost:3000/products/' + id
             }
-        });
+        }
+        response.success(res, 200, outRs, "Product Updated")
     })
-    .catch(err => {
-        logger.logger.error(err);
-        res.status(500).json({
-            error: err
-        });
-    });
 }
 
 exports.product_delete_product = (req,res,next) => {
     const id = req.params.productId;
     var productImage = ""
-    Product.findById(id)
-    .select('productImage')
-    .exec()
-    .then(doc => {
-        logger.logger.info("From database", doc);
-        if (doc) {
-            productImage = doc.productImage
-        } else {
-            res.status(404).json({message: "No valid entry found for provided ID"});
-        }
-        
-    })
-    .catch(err => {
-        logger.logger.error(err);
-        res.status(500).json({error: err});
-    }); 
 
-    Product.remove({_id: id})
-    .exec()
-    .then(result => {
-        res.status(200).json({
-            message: 'Product Deleted',
-            request: {
-                type: 'POST',
-                url: 'http://localhost:3000/products',
-                body: { name: 'String', price: 'Number'}
-            }
-        });
-        
-        fs.unlink(productImage, (err) => {
+    Product.findById(id, (err, data) => {
+        if (err) {
+            response.error(res, 500, err, error_msg)
+            return
+        }
+        logger.logger.info("From Database", data)
+        data.remove((err, result) => {
             if (err) {
-                logger.logger.error(err);
-                res.status(500).json({error: err});
-            };
-            logger.logger.info(`successfully deleted ${productImage}`);
-            });
+                response.error(res, 500, err, error_msg)
+                return
+            }
+
+            fs.unlink(productImage, (err) => {
+                if (err) {
+                    logger.logger.error(err);
+                    res.status(500).json({error: err});
+                }
+                logger.logger.info(`successfully deleted ${productImage}`);
+            })
+
+            const outRs = {
+                request: {
+                    type: 'POST',
+                    url: 'http://localhost:3000/products',
+                    body: { name: 'String', price: 'Number'}
+                }
+            }
+
+            response.success(res, 200, outRs, "Product Deleted")
+        })
     })
-    .catch(err => {
-        logger.logger.error(err);
-        res.status(500).json({error: err});
-    });
 }
