@@ -2,3 +2,4 @@ node_modules/
 uploads/
 nodemon.json
 ecosystem.conf.json
+package-lock.json
