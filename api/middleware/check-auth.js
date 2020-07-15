@@ -1,4 +1,3 @@
-const jwt = require('jsonwebtoken');
 const redis = require('../adapter/redis');
 var Base64 = require('js-base64').Base64;
 

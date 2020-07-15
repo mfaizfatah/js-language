@@ -151,7 +151,8 @@ exports.user_login = (req, res, next) => {
         }
         return res.status(200).json({
           message: 'Auth Successful',
-          token: token
+          token: token,
+          duration: process.env.TOKEN_DURATION
         })
       }
       res.status(401).json({
@@ -193,4 +194,33 @@ exports.user_get_one = (req, res, next) => {
       })
     }
   })
+}
+
+exports.user_refresh_token = (req, res, next) => {
+  const token = req.body.token;
+  Redis.get(token, (err, reply) => {
+      if (err || !reply) {
+          return res.status(500).json({
+              message: 'Something Error'
+          })
+      } else {
+          var errorRedis = ""
+          Redis.set(token, reply.toString(), 'EX', parseInt(process.env.TOKEN_DURATION), (err, data) => {
+              if (err) {
+                  console.log(err)
+                  errorRedis = err.message
+              }
+          })
+          if (errorRedis != "") {
+            return res.status(500).json({
+              message: 'Something Error'
+          })
+          }
+          var decode = Base64.decode(reply.toString())
+          req.userData = JSON.parse(decode)
+          res.status(200).json({
+            message: 'Token Refreshed'
+          })  
+        }
+      })
 }
