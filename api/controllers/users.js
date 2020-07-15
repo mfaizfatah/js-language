@@ -139,13 +139,13 @@ exports.user_login = (req, res, next) => {
         }
         const value = Base64.encode(JSON.stringify(obj))
         const duration = process.env.TOKEN_DURATION
-        Redis.set(token, value, 'EX', parseInt(duration), (err, reply) => {
-          if (err) {
-            return res.status(500).json({
-              error: err
-            })
-          }
-        })
+        var errorRedis = ""
+        Redis.set(token, value, 'EX', parseInt(duration), (err, reply) => { if (err) errorRedis = err })
+        if (err) {
+          return res.status(500).json({
+            error: errorRedis
+          })
+        }
         return res.status(200).json({
           message: 'Auth Successful',
           token: token
