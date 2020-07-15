@@ -33,7 +33,7 @@ const requestLog = expressWinston.logger({
     // }),
     new transports.MongoDB({
         db: process.env.MONGO_ATLAS_URL,
-        collection: "log-"+stringDate,
+        collection: "logNodeShop",
         options:{useUnifiedTopology: true},
         format: format.combine(format.timestamp(), format.json()),
         expireAfterSeconds:86400,
@@ -59,7 +59,7 @@ const errorLog = expressWinston.errorLogger({
   transports: [
     new transports.MongoDB({
         db: process.env.MONGO_ATLAS_URL,
-        collection: "log-"+stringDate,
+        collection: "logNodeShop",
         options:{useUnifiedTopology: true},
         format: format.combine(format.timestamp(), format.json()),
         expireAfterSeconds:86400,

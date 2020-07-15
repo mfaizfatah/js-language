@@ -117,7 +117,6 @@ exports.user_login = (req, res, next) => {
         error: err
       })
     }
-    console.log(user)
     if (user.length < 1) {
       return res.status(401).json({
         message: 'Auth failed'
