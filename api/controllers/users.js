@@ -228,7 +228,7 @@ exports.user_refresh_token = (req, res, next) => {
 
 exports.user_update_user = (req, res, next) => {
   const username = req.params.username
-  const { newnamaLengkap, newnamaPanggilan, newjenisKelamin, newkelas, newprovinsi, newkota, newsekolah } = req.body
+  const { namaLengkap, namaPanggilan, jenisKelamin, kelas, provinsi, kota, sekolah } = req.body
   const where = {username: username}
   
   User.find(where, (err, data) => {
@@ -248,25 +248,30 @@ exports.user_update_user = (req, res, next) => {
     }
 
     if (st) {
-      const updateOps = {
-        namaLengkap : newnamaLengkap,
-        namaPanggilan : newnamaPanggilan,
-        jenisKelamin : newjenisKelamin,
-        kelas : newkelas,
-        provinsi : newprovinsi,
-        kota : newkota,
-        sekolah : newsekolah,
-        updated_at : new Date(asiaTime)      
-      }
-      // updateOne
-      User.updateOne({_id: data._id}, { $set: updateOps }, (err, result) => {
-        if (err) {
+      User.findById(data[0]._id, (err, result) => {
+        if (err || !result) {
           return res.status(500).json({
-            message: "Error while updating data. Please try again later. Thank You!"
+            message: "Something Error"
           })
         }
-        res.status(200).json({
-          message: 'User Updated'
+        result.namaLengkap = namaLengkap
+        result.namaPanggilan = namaPanggilan
+        result.jenisKelamin = jenisKelamin
+        result.kelas = kelas
+        result.provinsi = provinsi
+        result.kota = kota
+        result.sekolah = sekolah
+        result.updated_at = new Date(asiaTime)  
+        console.log(result)
+        result.save((err, reply) => {
+          if (err) {
+            return res.status(500).json({
+              message: "Error while updating data. Please try again later. Thank You!"
+            })
+          }
+          res.status(200).json({
+            message: 'User Updated'
+          })
         })
       })
     } else {
