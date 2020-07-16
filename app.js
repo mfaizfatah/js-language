@@ -12,7 +12,8 @@ mongoose.connect(process.env.MONGO_ATLAS_URL,
 {
     useNewUrlParser: true,
     useUnifiedTopology: true,
-    useCreateIndex: true
+    useCreateIndex: true,
+    useFindAndModify: false
 });
 mongoose.Promise = global.Promise;
 
