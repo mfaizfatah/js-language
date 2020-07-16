@@ -258,6 +258,7 @@ exports.user_update_user = (req, res, next) => {
         sekolah : newsekolah,
         updated_at : new Date(asiaTime)      
       }
+      // updateOne
       User.updateOne({_id: data._id}, { $set: updateOps }, (err, result) => {
         if (err) {
           return res.status(500).json({
