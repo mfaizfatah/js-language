@@ -258,7 +258,7 @@ exports.user_update_user = (req, res, next) => {
         sekolah : newsekolah,
         updated_at : new Date(asiaTime)      
       }
-      User.update({_id: data._id}, { $set: updateOps }, (err, result) => {
+      User.updateOne({_id: data._id}, { $set: updateOps }, (err, result) => {
         if (err) {
           return res.status(500).json({
             message: "Error while updating data. Please try again later. Thank You!"
