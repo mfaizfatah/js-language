@@ -11,5 +11,6 @@ router.delete('/:username', checkAuth, userController.user_delete);
 router.post('/forgot', userController.sendEmail);
 router.get('/:username', checkAuth, userController.user_get_one);
 router.post('/refresh', checkApiKey, userController.user_refresh_token);
+router.patch('/:username', checkAuth, userController.user_update_user);
 
 module.exports = router;

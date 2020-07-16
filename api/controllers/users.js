@@ -151,6 +151,7 @@ exports.user_login = (req, res, next) => {
         }
         return res.status(200).json({
           message: 'Auth Successful',
+          username: user[0].username,
           token: token,
           duration: process.env.TOKEN_DURATION
         })
@@ -223,4 +224,55 @@ exports.user_refresh_token = (req, res, next) => {
           })  
         }
       })
+}
+
+exports.user_update_user = (req, res, next) => {
+  const username = req.params.username
+  const { newnamaLengkap, newnamaPanggilan, newjenisKelamin, newkelas, newprovinsi, newkota, newsekolah } = req.body
+  const where = {username: username}
+  
+  User.find(where, (err, data) => {
+    var st = false
+    if (err) {
+      return res.status(500).json({
+          error: err
+      })
+    }
+
+    if (!data) {
+      return res.status(404).json({
+        message: 'No valid entry found for provicded ID'
+      })
+    } else {
+      st = true
+    }
+
+    if (st) {
+      const updateOps = {
+        namaLengkap : newnamaLengkap,
+        namaPanggilan : newnamaPanggilan,
+        jenisKelamin : newjenisKelamin,
+        kelas : newkelas,
+        provinsi : newprovinsi,
+        kota : newkota,
+        sekolah : newsekolah,
+        updated_at : new Date(asiaTime)      
+      }
+      User.update({_id: data._id}, { $set: updateOps }, (err, result) => {
+        if (err) {
+          return res.status(500).json({
+            message: "Error while updating data. Please try again later. Thank You!"
+          })
+        }
+        res.status(200).json({
+          message: 'User Updated'
+        })
+      })
+    } else {
+      res.status(404).json({
+        message: 'No valid entry found for provicded ID'
+      })
+    }
+
+  })
 }

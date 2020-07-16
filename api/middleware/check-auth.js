@@ -2,6 +2,11 @@ const redis = require('../adapter/redis');
 var Base64 = require('js-base64').Base64;
 
 module.exports = (req,res,next) => {
+    if (req.headers.authorization == "") {
+        return res.status(401).json({
+            message: 'Auth failed'
+        })
+    }
     const token = req.headers.authorization.split(" ")[1];
     redis.get(token, (err, reply) => {
         if (err || !reply) {
