@@ -91,12 +91,12 @@ exports.product_create_product = (req,res,next) => {
         const outRs = {
             message: 'Created product successfully',
             createdProduct: {
-                name: result.name,
-                price: result.price,
-                _id: result._id,
+                name: data.name,
+                price: data.price,
+                _id: data._id,
                 request: {
                     type: 'GET',
-                    url: 'http://localhost:3000/products/'+ result._id
+                    url: 'http://localhost:3000/products/'+ data._id
                 }
             }
         }
